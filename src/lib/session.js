@@ -52,9 +52,18 @@ export function validateSessionToken(token) {
     const rows = fetch("SELECT * FROM session WHERE id = ?", [sessionId]);
     console.log("rows", rows);
     const row = fetchOne(
-        "SELECT session.id, session.user_id, session.expires_at, user.id, user.name FROM session INNER JOIN user ON user.id = session.user_id WHERE session.id = ?",
+        `SELECT 
+        session.id AS id, 
+        session.user_id, 
+        session.expires_at, 
+        user.id AS user_id, 
+        user.name 
+     FROM session 
+     INNER JOIN user ON user.id = session.user_id 
+     WHERE session.id = ?`,
         [sessionId]
     );
+
     if (!row) {
         console.log("invalid session, returning null");
         return { session: null, user: null };

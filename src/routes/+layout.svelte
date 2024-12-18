@@ -1,6 +1,6 @@
 <script>
 	import '../app.css';
-	let { children, data } = $props();
+	export let data;
     import { Button } from "$lib/components/ui/button";
 </script>
 
