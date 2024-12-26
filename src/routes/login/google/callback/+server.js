@@ -25,7 +25,7 @@ export async function GET(event) {
     try {
         tokens = await google.validateAuthorizationCode(code, codeVerifier);
     } catch (e) {
-        // Invalid code or client credentials
+
         return new Response(null, {
             status: 400
         });
@@ -33,8 +33,10 @@ export async function GET(event) {
     const claims = decodeIdToken(tokens.idToken());
     const googleUserId = claims.sub;
     const username = claims.name;
+    const picture = claims.picture;
+    console.log(JSON.stringify(claims));
 
-    // TODO: Replace this with your own DB query.
+
     const existingUser = await getUserFromGoogleId(googleUserId);
 
     if (existingUser !== null) {
@@ -51,9 +53,9 @@ export async function GET(event) {
         });
     }
 
-    // TODO: Replace this with your own DB query.
+
     console.log("Creating user", googleUserId, username);
-    const user = await createUser(googleUserId, username);
+    const user = await createUser(googleUserId, username, picture);
 
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, user.id);

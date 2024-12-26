@@ -1,20 +1,77 @@
 <script>
-    import { enhance } from "$app/forms";
+    import { applyAction, deserialize, enhance } from "$app/forms";
     import { Button } from "$lib/components/ui/button";
-    import Check from "lucide-svelte/icons/check";
-    import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-    import { tick } from "svelte";
-    import * as Command from "$lib/components/ui/command/index.js";
-    import * as Popover from "$lib/components/ui/popover/index.js";
-    import { cn } from "$lib/utils.js";
+    import * as Select from "$lib/components/ui/select/index.js";
+    import { Separator } from "$lib/components/ui/separator/index.js";
+    import { Label } from "$lib/components/ui/label/index.js";
+    import { Switch } from "$lib/components/ui/switch/index.js";
+    import { invalidateAll } from "$app/navigation";
+    import { Loader } from "lucide-svelte";
+    import { toast } from "svelte-sonner";
+    // import { Toaster } from "$lib/components/ui/sonner";
+    // import { toast } from "svelte-sonner";
+    
+    let loading = $state(false);
+    
+    let { data } = $props();
+    let selectedCountry = $state(data.country);
+    $effect(() => console.log("selectedCountry, data.country", selectedCountry, JSON.stringify(data)));
+    let selectedTopicTopStories = $state(data.topics.includes("topStories"));
+    let selectedTopicSports = $state(data.topics.includes("sports"));
+    let selectedTopicWorld = $state(data.topics.includes("world"));
+    let selectedTopicNation = $state(data.topics.includes("nation"));
+    let selectedTopicBusiness = $state(data.topics.includes("business"));
+    let selectedTopicTechnology = $state(data.topics.includes("technology"));
+    let selectedTopicEntertainment = $state(data.topics.includes("entertainment"));
+    let selectedTopicScience = $state(data.topics.includes("science"));
+    let selectedTopicHealth = $state(data.topics.includes("health"));
 
-    const frameworks = [
+    async function handleSubmit(event) {
+        loading = true;
+        event.preventDefault();
+
+        const data = new FormData(event.currentTarget);
+        data.append("country", selectedCountry.value);
+        data.append("topics", JSON.stringify({
+            topStories: selectedTopicTopStories,
+            sports: selectedTopicSports,
+            world: selectedTopicWorld,
+            nation: selectedTopicNation,
+            business: selectedTopicBusiness,
+            technology: selectedTopicTechnology,
+            entertainment: selectedTopicEntertainment,
+            science: selectedTopicScience,
+            health: selectedTopicHealth,
+        }));
+        console.log(data);
+        const res = await fetch(event.currentTarget.action, {
+            method: "POST",
+            body: data,
+        });
+
+        const result = deserialize(await res.text());
+
+        if (res.type === "success") {
+            await invalidateAll();
+        }
+
+        applyAction(result);
+        loading = false;
+        toast.success("Settings saved successfully");
+        
+        // toast({
+        //     message: "Settings saved successfully",
+        //     type: "success",
+        // });
+    }
+
+    const countries = [
+        { value: "India", label: "🇮🇳 India" },
         { value: "Australia", label: "🇦🇺 Australia" },
         { value: "Botswana", label: "🇧🇼 Botswana" },
         { value: "Canada", label: "🇨🇦 Canada" },
         { value: "Ethiopia", label: "🇪🇹 Ethiopia" },
         { value: "Ghana", label: "🇬🇭 Ghana" },
-        { value: "India", label: "🇮🇳 India" },
         { value: "Indonesia", label: "🇮🇩 Indonesia" },
         { value: "Ireland", label: "🇮🇪 Ireland" },
         { value: "Israel", label: "🇮🇱 Israel" },
@@ -77,146 +134,79 @@
         { value: "Taiwan", label: "🇹🇼 Taiwan" },
         { value: "Hong Kong", label: "🇭🇰 Hong Kong" },
         { value: "Japan", label: "🇯🇵 Japan" },
-        { value: "Republic of Korea", label: "🇰🇷 Republic of Korea" },
+        { value: "Republic of Korea", label: "🇰🇷 Republic of Korea" }
     ];
 
-    let open = false;
-    let value = "";
-    
-    $: selectedValue =
-    frameworks.find((f) => f.value.toLowerCase() === value.toLowerCase())?.label ?? "Select a framework...";
-    
-    // We want to refocus the trigger button when the user selects
-    // an item from the list so users can continue navigating the
-    // rest of the form with the keyboard.
-    function closeAndFocusTrigger(triggerId) {
-    open = false;
-    tick().then(() => {
-    document.getElementById(triggerId)?.focus();
-    });
-    }
+    let triggerContent = $derived(
+    countries.find((f) => f.value === selectedCountry)?.label ?? "Choose a country"
+    );
 </script>
 
-<div class="flex flex-col max-w-[650px] mx-auto my-8">
-    <h1 class="text-4xl font-semibold py-16">Settings</h1>
+<div class="flex flex-col max-w-[650px] mx-auto my-8 gap-2">
+    <!-- <Toaster /> -->
+    <h1 class="text-4xl font-semibold pt-16">Settings</h1>
+    <Separator class="mb-16 mt-4" />
+    <form class="flex flex-col gap-4" method="POST" onsubmit={handleSubmit}>
+        <h2 class=" text-base font-semibold py-2">News Country</h2>
 
-    <form class="flex flex-col" method="POST" use:enhance>
- 
-    <Popover.Root bind:open let:ids>
-    <Popover.Trigger asChild let:builder>
-    <Button
-    builders={[builder]}
-    variant="outline"
-    role="combobox"
-    aria-expanded={open}
-    class="w-[200px] justify-between"
-    >
-    {selectedValue}
-    <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-    </Button>
-    </Popover.Trigger>
-    <Popover.Content class="w-[200px] p-0">
-    <Command.Root>
-    <Command.Input placeholder="Search framework..." />
-    <Command.Empty>No framework found.</Command.Empty>
-    <Command.Group>
-        {#each frameworks as framework}
-        <Command.Item
-        value={framework.value}
-        onSelect={(currentValue) => {
-        value = currentValue;
-        closeAndFocusTrigger(ids.trigger);
-        }}
-        >
-        <Check
-        class={cn(
-            "mr-2 h-4 w-4",
-            value !== framework.value && "text-transparent"
-        )}
-        />
-        {framework.label}
-        </Command.Item>
+        <Select.Root type="single" name="country" bind:value={selectedCountry}>
+        <Select.Trigger class="w-[180px]">
+            {triggerContent}
+        </Select.Trigger>
+        <Select.Content>
+        {#each countries as country}
+            <Select.Item value={country.value} label={country.label}
+            >{country.label}</Select.Item
+            >
         {/each}
-    </Command.Group>
-    </Command.Root>
-    </Popover.Content>
-    </Popover.Root>
-        <!-- <Select.Root>
-            <Select.Trigger class="w-[180px]">
-                <Select.Value placeholder="Theme" />
-            </Select.Trigger>
-            <Select.Content>
-                <Select.Item value="Australia">🇦🇺 Australia</Select.Item>
-                <Select.Item value="Botswana">🇧🇼 Botswana</Select.Item>
-                <Select.Item value="Canada">🇨🇦 Canada</Select.Item>
-                <Select.Item value="Ethiopia">🇪🇹 Ethiopia</Select.Item>
-                <Select.Item value="Ghana">🇬🇭 Ghana</Select.Item>
-                <Select.Item value="India">🇮🇳 India</Select.Item>
-                <Select.Item value="Indonesia">🇮🇩 Indonesia</Select.Item>
-                <Select.Item value="Ireland">🇮🇪 Ireland</Select.Item>
-                <Select.Item value="Israel">🇮🇱 Israel</Select.Item>
-                <Select.Item value="Kenya">🇰🇪 Kenya</Select.Item>
-                <Select.Item value="Latvia">🇱🇻 Latvia</Select.Item>
-                <Select.Item value="Malaysia">🇲🇾 Malaysia</Select.Item>
-                <Select.Item value="Namibia">🇳🇦 Namibia</Select.Item>
-                <Select.Item value="New Zealand">🇳🇿 New Zealand</Select.Item>
-                <Select.Item value="Nigeria">🇳🇬 Nigeria</Select.Item>
-                <Select.Item value="Pakistan">🇵🇰 Pakistan</Select.Item>
-                <Select.Item value="Philippines">🇵🇭 Philippines</Select.Item>
-                <Select.Item value="Singapore">🇸🇬 Singapore</Select.Item>
-                <Select.Item value="South Africa">🇿🇦 South Africa</Select.Item>
-                <Select.Item value="Tanzania">🇹🇿 Tanzania</Select.Item>
-                <Select.Item value="Uganda">🇺🇬 Uganda</Select.Item>
-                <Select.Item value="United Kingdom">🇬🇧 United Kingdom</Select.Item>
-                <Select.Item value="United States">🇺🇸 United States</Select.Item>
-                <Select.Item value="Zimbabwe">🇿🇼 Zimbabwe</Select.Item>
-                <Select.Item value="Czech Republic">🇨🇿 Czech Republic</Select.Item>
-                <Select.Item value="Germany">🇩🇪 Germany</Select.Item>
-                <Select.Item value="Austria">🇦🇹 Austria</Select.Item>
-                <Select.Item value="Switzerland">🇨🇭 Switzerland</Select.Item>
-                <Select.Item value="Argentina">🇦🇷 Argentina</Select.Item>
-                <Select.Item value="Chile">🇨🇱 Chile</Select.Item>
-                <Select.Item value="Colombia">🇨🇴 Colombia</Select.Item>
-                <Select.Item value="Cuba">🇨🇺 Cuba</Select.Item>
-                <Select.Item value="Mexico">🇲🇽 Mexico</Select.Item>
-                <Select.Item value="Peru">🇵🇪 Peru</Select.Item>
-                <Select.Item value="Venezuela">🇻🇪 Venezuela</Select.Item>
-                <Select.Item value="Belgium">🇧🇪 Belgium</Select.Item>
-                <Select.Item value="France">🇫🇷 France</Select.Item>
-                <Select.Item value="Morocco">🇲🇦 Morocco</Select.Item>
-                <Select.Item value="Senegal">🇸🇳 Senegal</Select.Item>
-                <Select.Item value="Italy">🇮🇹 Italy</Select.Item>
-                <Select.Item value="Lithuania">🇱🇹 Lithuania</Select.Item>
-                <Select.Item value="Hungary">🇭🇺 Hungary</Select.Item>
-                <Select.Item value="Netherlands">🇳🇱 Netherlands</Select.Item>
-                <Select.Item value="Norway">🇳🇴 Norway</Select.Item>
-                <Select.Item value="Poland">🇵🇱 Poland</Select.Item>
-                <Select.Item value="Brazil">🇧🇷 Brazil</Select.Item>
-                <Select.Item value="Portugal">🇵🇹 Portugal</Select.Item>
-                <Select.Item value="Romania">🇷🇴 Romania</Select.Item>
-                <Select.Item value="Slovakia">🇸🇰 Slovakia</Select.Item>
-                <Select.Item value="Slovenia">🇸🇮 Slovenia</Select.Item>
-                <Select.Item value="Sweden">🇸🇪 Sweden</Select.Item>
-                <Select.Item value="Vietnam">🇻🇳 Vietnam</Select.Item>
-                <Select.Item value="Turkey">🇹🇷 Turkey</Select.Item>
-                <Select.Item value="Greece">🇬🇷 Greece</Select.Item>
-                <Select.Item value="Bulgaria">🇧🇬 Bulgaria</Select.Item>
-                <Select.Item value="Russia">🇷🇺 Russia</Select.Item>
-                <Select.Item value="Ukraine">🇺🇦 Ukraine</Select.Item>
-                <Select.Item value="Serbia">🇷🇸 Serbia</Select.Item>
-                <Select.Item value="United Arab Emirates">🇦🇪 United Arab Emirates</Select.Item>
-                <Select.Item value="Saudi Arabia">🇸🇦 Saudi Arabia</Select.Item>
-                <Select.Item value="Lebanon">🇱🇧 Lebanon</Select.Item>
-                <Select.Item value="Egypt">🇪🇬 Egypt</Select.Item>
-                <Select.Item value="Bangladesh">🇧🇩 Bangladesh</Select.Item>
-                <Select.Item value="Thailand">🇹🇭 Thailand</Select.Item>
-                <Select.Item value="China">🇨🇳 China</Select.Item>
-                <Select.Item value="Taiwan">🇹🇼 Taiwan</Select.Item>
-                <Select.Item value="Hong Kong">🇭🇰 Hong Kong</Select.Item>
-                <Select.Item value="Japan">🇯🇵 Japan</Select.Item>
-                <Select.Item value="Republic of Korea">🇰🇷 Republic of Korea</Select.Item>
+        </Select.Content>
+        </Select.Root>
 
-            </Select.Content>
-        </Select.Root> -->
+        <h2 class="text-base font-semibold py-2">Feed Topics</h2>
+        <div class="flex flex-col gap-4 w-fit ">
+            <div class="flex flex-row items-center gap-4">
+                <Label for="topStoriesSwitch">Top Stories</Label>
+                <Switch class="ml-auto" id="topStoriesSwitch" bind:checked={selectedTopicTopStories} ></Switch>
+            </div>
+            <div class="flex flex-row items-center gap-4">
+                <Label for="worldSwitch">World</Label>
+                <Switch class="ml-auto" id="worldSwitch" bind:checked={selectedTopicWorld} ></Switch>
+            </div>
+            <div class="flex flex-row items-center gap-4">
+                <Label for="nationSwitch">Nation</Label>
+                <Switch class="ml-auto" id="nationSwitch" bind:checked={selectedTopicNation} ></Switch>
+            </div>
+            <div class="flex flex-row items-center gap-4">
+                <Label for="businessSwitch">Business</Label>
+                <Switch class="ml-auto" id="businessSwitch" bind:checked={selectedTopicBusiness} ></Switch>
+            </div>
+            <div class="flex flex-row items-center gap-4">
+                <Label for="technologySwitch">Technology</Label>
+                <Switch class="ml-auto" id="technologySwitch" bind:checked={selectedTopicTechnology} ></Switch>
+            </div>
+            <div class="flex flex-row items-center gap-4">
+                <Label for="entertainmentSwitch">Entertainment</Label>
+                <Switch class="ml-auto" id="entertainmentSwitch" bind:checked={selectedTopicEntertainment} ></Switch>
+            </div>
+            <div class="flex flex-row items-center gap-4">
+                <Label for="sportsSwitch">Sports</Label>
+                <Switch class="ml-auto" id="sportsSwitch" bind:checked={selectedTopicSports} ></Switch>
+            </div>
+            <div class="flex flex-row items-center gap-4">
+                <Label for="scienceSwitch">Science</Label>
+                <Switch class="ml-auto" id="scienceSwitch" bind:checked={selectedTopicScience} ></Switch>
+            </div>
+            <div class="flex flex-row items-center gap-4">
+                <Label for="healthSwitch">Health</Label>
+                <Switch class="ml-auto" id="healthSwitch" bind:checked={selectedTopicHealth} ></Switch>
+            </div>
+        </div>
+
+        <Button type="submit" disabled={loading} class="mt-8">
+            {#if loading}
+                <Loader class="w-6 h-6 animate-spin mx-2" />
+            {/if}
+            Save Changes
+        </Button>
     </form>
 </div>

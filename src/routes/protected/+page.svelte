@@ -1,11 +1,30 @@
 <script>
-    let { data } = $props();
+    import { Button } from "$lib/components/ui/button";
+    import * as Card from "$lib/components/ui/card/index.js";
+
+    let data = {"user":{"id":1,"name":"Narendhar TS","picture":"https://lh3.googleusercontent.com/a/ACg8ocJtnJJB5MmPuGTKLO2yWL8VZRk_rhh1yJyZYmcM4FafV1QyIRPc=s96-c"},"message":"{\"news\":[{\"description\":\"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.\",\"image\":\"https://media.assettype.com/analyticsinsight%2F2024-12-20%2Fjvowp5wx%2FBenefits-of-ChatGPT-on-WhatsApp-for-Businesses.jpg?w=1200&ar=40%3A21&auto=format%2Ccompress&ogImage=true&mode=crop&enlarge=true&overlay=false&overlay_position=bottom&overlay_width=100\",\"title\":\"Benefits of ChatGPT on WhatsApp for Businesses - Analytics Insight\",\"url\":\"https://www.analyticsinsight.net/ampstories/chatgpt/benefits-of-chatgpt-on-whatsapp-for-businesses\",\"website\":\"www.analyticsinsight.net\"},{\"description\":\"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.\",\"image\":\"https://www.hindustantimes.com/ht-img/img/2024/12/20/1600x900/GfJzWDpbgAACvNr_1734676245712_1734676257674.jpg\",\"title\":\"Realme 14 Pro colour changing design revealed ahead of India launch- All details - Hindustan Times\",\"url\":\"https://www.hindustantimes.com/technology/realme-14-pro-colour-changing-design-revealed-ahead-of-india-launch-all-details-101734676228324.html\",\"website\":\"www.hindustantimes.com\"},{\"description\":\"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.\",\"image\":\"https://lh3.googleusercontent.com/J6_coFbogxhRI9iM864NL_liGXvsQp2AupsKei7z0cNNfDvGUmWUy20nuUhkREQyrpY4bEeIBuc=s0-w300\",\"title\":\"ASUS ROG gaming laptops with GeForce RTX 5090 and RTX 5080 GPUs listed online - VideoCardz.com\",\"url\":\"https://videocardz.com/newz/asus-rog-gaming-laptops-with-geforce-rtx-5090-and-rtx-5080-gpus-listed-online?__cf_chl_rt_tk=0SNx4f77h_5rlheFUz95Zc643C.Bnz6oDxvNIipk7Dw-1734713828-1.0.1.1-uv_jZMKoO5pDndBx2KAO6Ig3xE.wDuq6AV80ScpjX_w\",\"website\":\"videocardz.com\"},{\"description\":\"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.\",\"image\":\"https://www.financialexpress.com/wp-content/uploads/2024/12/oneplus-13r.jpg\",\"title\":\"Amazon leaks OnePlus 13R processor details ahead of OnePlus 13 series winter launch event: Details - The Financial Express\",\"url\":\"https://www.financialexpress.com/life/technology-amazon-leaks-oneplus-13r-processor-details-ahead-of-oneplus-13-series-winter-launch-event-details-3696286/\",\"website\":\"www.financialexpress.com\"},{\"description\":\"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.\",\"image\":\"https://i.gadgets360cdn.com/large/google_photos_memories_2_1733398074095.jpg\",\"title\":\"Google Photos Developing Quick Edit Feature for Editing Media Before Sharing: Report - Gadgets 360\",\"url\":\"https://www.gadgets360.com/apps/news/google-photos-quick-edit-feature-development-report-7293342\",\"website\":\"www.gadgets360.com\"}],\"success\":true}","error":false,"data":{"news":[{"description":"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.","image":"https://media.assettype.com/analyticsinsight%2F2024-12-20%2Fjvowp5wx%2FBenefits-of-ChatGPT-on-WhatsApp-for-Businesses.jpg?w=1200&ar=40%3A21&auto=format%2Ccompress&ogImage=true&mode=crop&enlarge=true&overlay=false&overlay_position=bottom&overlay_width=100","title":"Benefits of ChatGPT on WhatsApp for Businesses - Analytics Insight","url":"https://www.analyticsinsight.net/ampstories/chatgpt/benefits-of-chatgpt-on-whatsapp-for-businesses","website":"www.analyticsinsight.net"},{"description":"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.","image":"https://www.hindustantimes.com/ht-img/img/2024/12/20/1600x900/GfJzWDpbgAACvNr_1734676245712_1734676257674.jpg","title":"Realme 14 Pro colour changing design revealed ahead of India launch- All details - Hindustan Times","url":"https://www.hindustantimes.com/technology/realme-14-pro-colour-changing-design-revealed-ahead-of-india-launch-all-details-101734676228324.html","website":"www.hindustantimes.com"},{"description":"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.","image":"https://lh3.googleusercontent.com/J6_coFbogxhRI9iM864NL_liGXvsQp2AupsKei7z0cNNfDvGUmWUy20nuUhkREQyrpY4bEeIBuc=s0-w300","title":"ASUS ROG gaming laptops with GeForce RTX 5090 and RTX 5080 GPUs listed online - VideoCardz.com","url":"https://videocardz.com/newz/asus-rog-gaming-laptops-with-geforce-rtx-5090-and-rtx-5080-gpus-listed-online?__cf_chl_rt_tk=0SNx4f77h_5rlheFUz95Zc643C.Bnz6oDxvNIipk7Dw-1734713828-1.0.1.1-uv_jZMKoO5pDndBx2KAO6Ig3xE.wDuq6AV80ScpjX_w","website":"videocardz.com"},{"description":"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.","image":"https://www.financialexpress.com/wp-content/uploads/2024/12/oneplus-13r.jpg","title":"Amazon leaks OnePlus 13R processor details ahead of OnePlus 13 series winter launch event: Details - The Financial Express","url":"https://www.financialexpress.com/life/technology-amazon-leaks-oneplus-13r-processor-details-ahead-of-oneplus-13-series-winter-launch-event-details-3696286/","website":"www.financialexpress.com"},{"description":"Comprehensive, up-to-date news coverage, aggregated from sources all over the world by Google News.","image":"https://i.gadgets360cdn.com/large/google_photos_memories_2_1733398074095.jpg","title":"Google Photos Developing Quick Edit Feature for Editing Media Before Sharing: Report - Gadgets 360","url":"https://www.gadgets360.com/apps/news/google-photos-quick-edit-feature-development-report-7293342","website":"www.gadgets360.com"}],"success":true}};
+    let data_news = JSON.parse(data.message).news;
 </script>
 
-<h1>Protected Page</h1>
 
-{#if data.user}
-    <p>Welcome, {data.user.name}</p>
-{:else}
-    <p>Not logged in</p>
-{/if}
+<div class="w-full px-4 grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
+    {#each data_news as news}
+        <Card.Root class="max-w-fit overflow-hidden">
+            <Card.Header class="px-0 pt-0 relative w-full h-48 overflow-hidden">
+                <div class="w-full h-full relative">
+                    <img src={news.image} alt={news.title} class="w-full h-full object-cover" />
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-background/70 to-background"></div>
+                </div>
+            </Card.Header>
+            <Card.Content>
+                <Card.Title class="text-xl">{news.title}</Card.Title>
+                <Card.Description>{news.website}</Card.Description>
+                {news.description}
+            </Card.Content>
+            <Card.Footer>
+                <Button href={news.url}>Visit Article</Button>
+            </Card.Footer>
+        </Card.Root>
+
+    {/each}
+</div>

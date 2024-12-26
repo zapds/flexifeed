@@ -57,7 +57,8 @@ export function validateSessionToken(token) {
         session.user_id, 
         session.expires_at, 
         user.id AS user_id, 
-        user.name 
+        user.name,
+        user.picture
      FROM session 
      INNER JOIN user ON user.id = session.user_id 
      WHERE session.id = ?`,
@@ -76,7 +77,8 @@ export function validateSessionToken(token) {
     };
     const user = {
         id: row.user_id,
-        name: row.name
+        name: row.name,
+        picture: row.picture
     };
     console.log("valid session, returning session and user, ", session, user);
     if (Date.now() >= session.expiresAt.getTime()) {
