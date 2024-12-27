@@ -16,7 +16,6 @@
     let { data } = $props();
     let selectedCountry = $state(data.country);
     $effect(() => console.log("selectedCountry, data.country", selectedCountry, JSON.stringify(data)));
-    let selectedTopicTopStories = $state(data.topics.includes("topStories"));
     let selectedTopicSports = $state(data.topics.includes("sports"));
     let selectedTopicWorld = $state(data.topics.includes("world"));
     let selectedTopicNation = $state(data.topics.includes("nation"));
@@ -33,7 +32,6 @@
         const data = new FormData(event.currentTarget);
         data.append("country", selectedCountry.value);
         data.append("topics", JSON.stringify({
-            topStories: selectedTopicTopStories,
             sports: selectedTopicSports,
             world: selectedTopicWorld,
             nation: selectedTopicNation,
@@ -164,10 +162,6 @@
 
         <h2 class="text-base font-semibold py-2">Feed Topics</h2>
         <div class="flex flex-col gap-4 w-fit ">
-            <div class="flex flex-row items-center gap-4">
-                <Label for="topStoriesSwitch">Top Stories</Label>
-                <Switch class="ml-auto" id="topStoriesSwitch" bind:checked={selectedTopicTopStories} ></Switch>
-            </div>
             <div class="flex flex-row items-center gap-4">
                 <Label for="worldSwitch">World</Label>
                 <Switch class="ml-auto" id="worldSwitch" bind:checked={selectedTopicWorld} ></Switch>

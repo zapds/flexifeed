@@ -89,18 +89,17 @@
 		disconnectWebSocket();
 	});
 
-	let topics = data.topics || ["world", "nation", "technology", "sports", "science"];
+	let topics = data.topics || ["top_stories", "world", "nation", "business", "technology", "entertainment", "sports", "science", "health"];
+
 	onMount(async () => {
 		try {
-			const toast1 = toast.promise(itemsPromise, {
+			toast.promise(itemsPromise, {
 				loading: 'Connecting to server...',
 				success: 'Feed is ready!'
 			});
 
 			connectWebSocket();
 			// wait for the connection to be established
-			toast.dismiss(toast1);
-
 			toast.promise(itemsPromise, {
 				loading: 'Connected to websocket! Requesting articles...',
 				success: 'Feed is ready!'
@@ -202,7 +201,7 @@
 			</Card.Header>
 			<Card.Content class="flex-grow">
 				<Card.Title class="text-xl">{news.title}</Card.Title>
-				<Card.Description>{news.topic} • {news.website}</Card.Description>
+				<Card.Description>{news.website}</Card.Description>
 			</Card.Content>
 			<Card.Footer>
 				<Button id="btn-{i}" variant={addedindices.includes(i) ? 'outline' : undefined} class="w-full transition-colors duration-300">
@@ -210,7 +209,7 @@
 						<CheckCircle class="mr-2 h-4 w-4" />
 					{/if}
 					Add{addedindices.includes(i) ? 'ed' : ''} to feed
-				</Button>
+					</Button>
 			</Card.Footer>
 		</Card.Root>
 	{/each}

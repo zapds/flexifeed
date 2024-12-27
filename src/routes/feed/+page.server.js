@@ -1,3 +1,4 @@
+import { fetchOne } from "$lib/db";
 import { redirect } from "@sveltejs/kit";
 
 export const load = async (event) => {
@@ -7,7 +8,7 @@ export const load = async (event) => {
 
     const userId = event.locals.user.id;
     const sessionId = event.locals.session.id;
-
+    const settings = fetchOne("SELECT * FROM user_settings WHERE user_id = ?", [event.locals.user.id]);
     // let response;
     // try {
     //     response = await fetch(`http://localhost:3001/genfeed?user_id=${userId}&session_id=${sessionId}`, {
@@ -50,6 +51,7 @@ export const load = async (event) => {
     return {
         user_id: event.locals.user.id,
         session_id: event.locals.session.id,
+        topics: settings?.topics ? JSON.parse(settings.topics) : [],
         // message: JSON.stringify(data),
         // error: false,
         // data: data

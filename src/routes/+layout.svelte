@@ -59,6 +59,6 @@
 	{/if}
 </nav>
 
-<Toaster />
+<Toaster position="top-right" />
 
 {@render children()}
