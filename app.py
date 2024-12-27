@@ -40,7 +40,6 @@ async def get_news(language, location, topic, max_results):
                 await page.wait_for_url(predicate, wait_until="commit", timeout=5000)
             except:
                 continue
-            print("page url: ", page.url)
             image_url = await page.query_selector("meta[property='og:image']")
             if image_url:
                 article["image"] = await image_url.get_attribute("content")
@@ -50,7 +49,6 @@ async def get_news(language, location, topic, max_results):
                 "image": article["image"],
                 "website": page.url.split("/")[2],
             }
-            print(dat)
             return json.dumps(dat)
 
 async def get_article_content(url):
@@ -72,8 +70,6 @@ async def genfeed(request):
     user_id = request.query.get("user_id")
     session_id = request.query.get("session_id")
 
-    print("user_id: ", user_id)
-    print("session_id: ", session_id)
     if not user_id or not session_id:
         return web.json_response({"error": "Missing user_id or session_id"}, status=400)
 
@@ -187,39 +183,30 @@ async def ws_genfeed(request):
     timeout = 300  # Set timeout for the WebSocket connection
     browser = None
     browser_task = None
-
     news_cache = {}
 
     try:
         async with async_playwright() as p:
             browser = await p.firefox.launch(headless=True)
-
             async def fetch_articles(topic):
-                # if news_cache.get(topic, None):
-                #     news = news_cache[:5]
-                #     news_cache = news_cache[5:]
-                # else:
-                #     client = gnewsclient.NewsClient(
-                #         language="en",
-                #         location="India",
-                #         topic=topic,
-                #         use_opengraph=True,
-                #     )
-                #     news = client.get_news()
-                #     news_cache[topic] = news
-                client = gnewsclient.NewsClient(
-                    language="en",
-                    location="India",
-                    topic=topic,
-                )
-                print("getting news:")
-                news = client.get_news()
-                print("got news")
+                if topic in news_cache:
+                    if not news_cache[topic]:
+                        return
+                    news = news_cache[topic][:5]
+                    news_cache[topic] = news_cache[topic][5:]
+                else:
+                    client = gnewsclient.NewsClient(
+                        language="en",
+                        location="India",
+                        max_results=10,
+                        topic=topic,
+                    )
+                    news = client.get_news()
+                    news_cache[topic] = news[5:]
                 async def fetch_article_data(article):
                     page = await browser.new_page()
                     try:
                         await page.goto(article["link"], timeout=0)
-
                         def predicate(url):
                             return not url.startswith("https://news.google.com/")
 
@@ -251,7 +238,6 @@ async def ws_genfeed(request):
                         await page.close()
 
                 tasks = [fetch_article_data(article) for article in news[:5]]
-                print(tasks)
                 for coro in asyncio.as_completed(tasks):
                     result = await coro
                     if result:
@@ -267,7 +253,6 @@ async def ws_genfeed(request):
                             await ws.close()
                             break
                         elif topic:
-                            print("fetching topic", topic)
                             await fetch_articles(topic)
                     elif msg.type in (WSMsgType.CLOSE, WSMsgType.ERROR):
                         break
