@@ -51,16 +51,42 @@ async def get_news(language, location, topic, max_results):
             }
             return json.dumps(dat)
 
-async def get_article_content(url):
-    with async_playwright() as p:
-        browser = await p.firefox.launch(headless=True)
-        page = await browser.new_page()
-        await page.goto(f"about:reader?url={page.url}", wait_until="networkidle")
-        # page.wait_for_timeout(60000)
-        # page.wait_for_function("() => document.querySelector('html').innerText !== 'Loading…'")
-        await page.wait_for_selector("div.reader-message", state="hidden")
-        text = await page.inner_text("html")
-        return text
+async def get_summary(urls):
+    async with async_playwright() as p:
+        browser = await p.firefox.launch(headless=False)
+        async def fetch_article(url):
+            print("fetching article: ", url)
+            page = await browser.new_page()
+            await page.goto(f"about:reader?url={url}", wait_until="networkidle", timeout=0)
+            print("waited for network idle")
+            # page.wait_for_function("() => document.querySelector('html').innerText !== 'Loading…'")
+            print("waiting for selector")
+            try:
+                await page.wait_for_selector("div.reader-message", state="hidden", timeout=5000)
+            except Exception:
+                return None
+            print("selector hidden")
+            text = await page.inner_text("html")
+            return text
+        texts = []
+        tasks = [fetch_article(url) for url in urls]
+        for coro in asyncio.as_completed(tasks):
+            result = await coro
+            if result:
+                texts.append(result)
+        # return "\n\n".join(texts)
+        client = openai.OpenAI()
+
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a news reporter. Summarize the following news articles and present them combined like a news reporter on television. Use markdown to format your response to make it easy to read. There is no word limit, make sure to include only the most important points. Ignore any unnecessary details."},
+                {"role": "user", "content": "\n\n".join(texts)},
+            ],
+        )
+        output = str(completion.choices[0].message.content)
+        inp = "\n\n".join(texts)
+        return output
 
 
 async def hello_world():
@@ -175,8 +201,33 @@ async def genfeed(request):
     await response.write_eof()
     return response
 
+async def summarize(request):
+    user_id = request.query.get("user_id")
+    session_id = request.query.get("session_id")
+
+    print("user_id: ", user_id)
+    print("session_id: ", session_id)
+    if not user_id or not session_id:
+        return web.json_response({"error": "Missing user_id or session_id"}, status=400)
+    
+    urls = request.query.get("urls")
+    if not urls:
+        return web.json_response({"error": "Missing urls"}, status=400)
+
+    urls = urls.split(",")
+    summary = await get_summary(urls)
+    return web.json_response({"summary": summary})
+
 
 async def ws_genfeed(request):
+    user_id = request.query.get("user_id")
+    session_id = request.query.get("session_id")
+
+    print("user_id: ", user_id)
+    print("session_id: ", session_id)
+    if not user_id or not session_id:
+        return web.json_response({"error": "Missing user_id or session_id"}, status=400)
+    
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
@@ -276,7 +327,9 @@ async def ws_genfeed(request):
 
 app.router.add_get('/', hello_world)
 app.router.add_get('/genfeed', genfeed)
+app.router.add_get('/summarize', summarize)
 app.router.add_get("/ws-genfeed", ws_genfeed)
+
 
 if __name__ == '__main__':
     web.run_app(app, port=3001)

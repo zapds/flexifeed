@@ -155,7 +155,7 @@
 		}
 	});
 
-	let feedUrls = [];
+	let feedUrls = $state([]);
 	let addedindices = $state([]);
 
 	function addToFeed(url, i) {
@@ -214,7 +214,7 @@
 			</Card.Footer>
 		</Card.Root>
 	{/each}
-	{#each Array(10 - $items.length).fill() as _, i}
+	{#each Array(topics.length * 5 - $items.length).fill() as _, i}
 		<Card.Root class="min-w-full overflow-hidden rounded-lg flex flex-col">
 			<Card.Header class="px-0 pt-0 relative w-full h-48 overflow-hidden">
 				<div class="w-full h-full relative">
@@ -245,7 +245,7 @@
 	<h3 class="font-bold relative z-10">
 		Done Selecting? Summarize {addedindices.length} article{addedindices.length > 1 ? 's' : ''}
 	</h3>
-	<Button disabled={addedindices.length == 0} class="relative z-10">Summarize</Button>
+	<Button data-sveltekit-preload-data="tap" href={`/feed?urls=${encodeURIComponent(feedUrls.join(','))}`} disabled={addedindices.length == 0} class="relative z-10">Summarize</Button>
 	</div>
 {/if}
 
