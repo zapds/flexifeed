@@ -1,38 +1,97 @@
-# sv
+# FlexiFeed
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+FlexiFeed is a personalized news feed application that allows users to receive news articles tailored to their interests. The application uses various technologies to fetch, process, and display news articles in a user-friendly manner.
 
-## Creating a project
+## Tech Stack
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **Frontend**: Svelte, Tailwind CSS
+- **Backend**: Node.js, SvelteKit, Flask
+- **Database**: SQLite
+- **Authentication**: Google OAuth
+- **Communication Protocol**: WebSocket for real-time updates
+- **APIs**: Google News, OpenAI
+- **Other Libraries**: Playwright, gnewsclient, aiosqlite
 
-```bash
-# create a new project in the current directory
-npx sv create
+## Features
 
-# create a new project in my-app
-npx sv create my-app
+- User authentication via Google OAuth
+- Personalized news feed based on user settings
+- Fast data streaming using WebSocket
+- News scraping using Playwright (Firefox)
+- Summarization of news articles using OpenAI
+
+
+## Setup Instructions
+
+### Prerequisites
+
+- Node.js
+- Python
+
+### Setup
+
+1. **Clone the repository**:
+    ```sh
+    git clone https://github.com/zapds/flexifeed.git
+    cd flexifeed
+    ```
+
+### Backend Setup
+
+2. **Install Python dependencies**:
+    ```sh
+    pip install -r requirements.txt
+    ```
+
+3. **Set up the database**:
+    ```sh
+    sqlite3 database.db < schema.sql
+    ```
+
+4. **Run the Flask server**:
+    ```sh
+    python app.py
+    ```
+
+### Frontend Setup
+
+1. **Install Node.js dependencies**:
+    ```sh
+    npm install
+    ```
+
+2. **Run the development server**:
+    ```sh
+    npm run dev
+    ```
+
+### Environment Variables
+
+Create a .env file in the root directory and add the following environment variables:
+
+```
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+OPENAI_API_KEY=your-openai-api-key
 ```
 
-## Developing
+### Running the Application
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+1. **Start the backend server**:
+    ```sh
+    python app.py
+    ```
 
-```bash
-npm run dev
+2. **Start the frontend server**:
+    ```sh
+    npm run dev
+    ```
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+3. Open your browser and navigate to `http://localhost:5173/` to access the application.
 
-## Building
+## Usage
 
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- **Login**: Users can log in using their Google account.
+- **Settings**: Users can set their preferred news topics and country.
+- **Generate Feed**: Users can generate a personalized news feed based on their settings.
+- **Summarize Articles**: Users can select articles to summarize and get a concise summary using OpenAI.
