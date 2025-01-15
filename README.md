@@ -95,3 +95,6 @@ OPENAI_API_KEY=your-openai-api-key
 - **Settings**: Users can set their preferred news topics and country.
 - **Generate Feed**: Users can generate a personalized news feed based on their settings.
 - **Summarize Articles**: Users can select articles to summarize and get a concise summary using OpenAI.
+
+### Author
+Narendhar T S (EC24B1053)
