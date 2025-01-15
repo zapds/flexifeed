@@ -96,5 +96,5 @@ OPENAI_API_KEY=your-openai-api-key
 - **Generate Feed**: Users can generate a personalized news feed based on their settings.
 - **Summarize Articles**: Users can select articles to summarize and get a concise summary using OpenAI.
 
-### Author
+## Author
 Narendhar T S (EC24B1053)
