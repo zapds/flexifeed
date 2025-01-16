@@ -1,5 +1,7 @@
 import { fetchOne } from "$lib/db";
 import { redirect } from "@sveltejs/kit";
+import { HOST_IP } from "$env/static/private";
+
 
 export const load = async (event) => {
     if (!event.locals.user) {
@@ -12,7 +14,7 @@ export const load = async (event) => {
     const urls = event.url.searchParams.get('urls');
     let response;
     try {
-        response = await fetch(`http://localhost:3001/summarize?user_id=${userId}&session_id=${sessionId}&urls=${urls}`, {
+        response = await fetch(`http://${HOST_IP}/summarize?user_id=${userId}&session_id=${sessionId}&urls=${urls}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
