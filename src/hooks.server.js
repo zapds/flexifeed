@@ -15,9 +15,9 @@ export const handle = async ({ event, resolve }) => {
 
     const { session, user } = await validateSessionToken(token);
     if (session !== null) {
-        setSessionTokenCookie(event, token);
+        await setSessionTokenCookie(event, token);
     } else {
-        deleteSessionTokenCookie(event);
+        await deleteSessionTokenCookie(event);
     }
 
     event.locals.session = session;

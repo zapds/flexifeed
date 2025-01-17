@@ -41,7 +41,7 @@ export async function GET(event) {
 
     if (existingUser !== null) {
         console.log("User exists", existingUser);
-        const sessionToken = generateSessionToken();
+        const sessionToken = await generateSessionToken();
         console.log("Session token", sessionToken);
         const session = await createSession(sessionToken, existingUser.id);
         setSessionTokenCookie(event, sessionToken);
@@ -57,7 +57,7 @@ export async function GET(event) {
     console.log("Creating user", googleUserId, username);
     const user = await createUser(googleUserId, username, picture);
 
-    const sessionToken = generateSessionToken();
+    const sessionToken = await generateSessionToken();
     const session = await createSession(sessionToken, user.id);
     setSessionTokenCookie(event, sessionToken);
     console.log("User created", user);

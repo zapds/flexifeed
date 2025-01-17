@@ -21,12 +21,12 @@ export const actions = {
 
         const existing = fetchOne("SELECT * FROM user_settings WHERE user_id = $1", [locals.user.id]);
         if (existing) {
-            execute(
+            await execute(
                 "UPDATE user_settings SET country = $1, topics = $2 WHERE user_id = $3",
                 [country, JSON.stringify(topicsArray), locals.user.id]
             );
         } else {
-            execute(
+            await execute(
                 "INSERT INTO user_settings (user_id, country, topics) VALUES ($1, $2, $3)",
                 [locals.user.id, country, JSON.stringify(topicsArray)]
             );
@@ -42,7 +42,7 @@ export const load = async (event) => {
         return redirect(302, "/login");
     }
 
-    const settings = fetchOne("SELECT * FROM user_settings WHERE user_id = $1", [event.locals.user.id]);
+    const settings = await fetchOne("SELECT * FROM user_settings WHERE user_id = $1", [event.locals.user.id]);
 
     console.log(JSON.stringify(settings));
 

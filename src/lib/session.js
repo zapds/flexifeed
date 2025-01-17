@@ -4,7 +4,7 @@ import { sha256 } from "@oslojs/crypto/sha2";
 
 
 
-export function setSessionTokenCookie(event, token) {
+export async function setSessionTokenCookie(event, token) {
     console.log("Setting session token cookie", token);
     event.cookies.set("session", token, {
         // httpOnly: true,
@@ -14,7 +14,7 @@ export function setSessionTokenCookie(event, token) {
     });
 }
 
-export function deleteSessionTokenCookie(event) {
+export async function deleteSessionTokenCookie(event) {
     console.log("Deleting session token cookie");
     event.cookies.set("session", "", {
         // httpOnly: true,
@@ -24,34 +24,34 @@ export function deleteSessionTokenCookie(event) {
     });
 }
 
-export function generateSessionToken() {
+export async function generateSessionToken() {
     const bytes = new Uint8Array(20);
     crypto.getRandomValues(bytes);
     const token = encodeBase32LowerCaseNoPadding(bytes);
     return token;
 }
 
-export function createSession(token, userId) {
+export async function createSession(token, userId) {
     const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
     const session = {
         id: sessionId,
         userId,
         expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
     };
-    execute(
+    await execute(
         "INSERT INTO session (id, user_id, expires_at) VALUES ($1, $2, $3)",
         [session.id, session.userId, Math.floor(session.expiresAt.getTime() / 1000)]
     );
     return session;
 }
 
-export function validateSessionToken(token) {
+export async function validateSessionToken(token) {
     console.log("Validating session token: ", token);
     const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
     console.log("checking session id", sessionId);
-    const rows = fetch("SELECT * FROM session WHERE id = $1", [sessionId]);
+    const rows = await fetch("SELECT * FROM session WHERE id = $1", [sessionId]);
     console.log("rows", rows);
-    const row = fetchOne(
+    const row = await fetchOne(
         `SELECT 
         session.id AS id, 
         session.user_id, 
@@ -83,13 +83,13 @@ export function validateSessionToken(token) {
     console.log("valid session, returning session and user, ", session, user);
     if (Date.now() >= session.expiresAt.getTime()) {
         console.log("session expired, deleting session and returning null");
-        execute("DELETE FROM session WHERE id = $1", [session.id]);
+        await execute("DELETE FROM session WHERE id = $1", [session.id]);
         return { session: null, user: null };
     }
     if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
         console.log("session expires in less than 15 days, updating session");
         session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
-        execute(
+        await execute(
             "UPDATE session SET expires_at = $1 WHERE id = $2",
             [Math.floor(session.expiresAt.getTime() / 1000),
             session.id]
@@ -98,7 +98,7 @@ export function validateSessionToken(token) {
     return { session, user };
 }
 
-export function invalidateSession(sessionId) {
-    execute("DELETE FROM session WHERE id = $1", [sessionId]);
+export async function invalidateSession(sessionId) {
+    await execute("DELETE FROM session WHERE id = $1", [sessionId]);
 }
 

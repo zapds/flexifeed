@@ -10,7 +10,7 @@ export async function GET(event) {
             });
         }
         await invalidateSession(event.locals.session.id);
-        deleteSessionTokenCookie(event);
+        await deleteSessionTokenCookie(event);
         return new Response(null, {
         status: 302,
         headers: {

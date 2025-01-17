@@ -6,15 +6,15 @@ import { DATABASE_URL } from "$env/static/private";
 
 const sql = neon(`${DATABASE_URL}`);
 
-export function execute(query, params = []) {
-    return sql(query, params);
+export async function execute(query, params = []) {
+    return await sql(query, params);
 }
 
-export function fetch(query, params = []) {
-    return sql(query, params);
+export async function fetch(query, params = []) {
+    return await sql(query, params);
 }
 
-export function fetchOne(query, params = []) {
-    return fetch(query, params)[0] || null;
+export async function fetchOne(query, params = []) {
+    return await fetch(query, params)[0] || null;
 }
 

@@ -2,8 +2,8 @@ import { execute, fetch, fetchOne } from "./db";
 
 
 
-export function createUser(googleId, name, picture) {
-    const row = fetchOne("INSERT INTO user (google_id, name, picture) VALUES ($1, $2, $3) RETURNING user.id",
+export async function createUser(googleId, name, picture) {
+    const row = await fetchOne("INSERT INTO user (google_id, name, picture) VALUES ($1, $2, $3) RETURNING user.id",
         [googleId, name, picture]);
     if (!row) {
         throw new Error("Unexpected error");
@@ -17,8 +17,8 @@ export function createUser(googleId, name, picture) {
     return user;
 }
 
-export function getUserFromGoogleId(googleId) {
-    const row = fetchOne("SELECT id, google_id, name, picture FROM user WHERE google_id = $1", [googleId]);
+export async function getUserFromGoogleId(googleId) {
+    const row = await fetchOne("SELECT id, google_id, name, picture FROM user WHERE google_id = $1", [googleId]);
     if (!row) {
         return null;
     }
