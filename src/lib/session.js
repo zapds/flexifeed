@@ -39,7 +39,7 @@ export function createSession(token, userId) {
         expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
     };
     execute(
-        "INSERT INTO session (id, user_id, expires_at) VALUES (?, ?, ?)",
+        "INSERT INTO session (id, user_id, expires_at) VALUES ($1, $2, $3)",
         [session.id, session.userId, Math.floor(session.expiresAt.getTime() / 1000)]
     );
     return session;
@@ -49,7 +49,7 @@ export function validateSessionToken(token) {
     console.log("Validating session token: ", token);
     const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
     console.log("checking session id", sessionId);
-    const rows = fetch("SELECT * FROM session WHERE id = ?", [sessionId]);
+    const rows = fetch("SELECT * FROM session WHERE id = $1", [sessionId]);
     console.log("rows", rows);
     const row = fetchOne(
         `SELECT 
@@ -61,7 +61,7 @@ export function validateSessionToken(token) {
         user.picture
      FROM session 
      INNER JOIN user ON user.id = session.user_id 
-     WHERE session.id = ?`,
+     WHERE session.id = $1`,
         [sessionId]
     );
 
@@ -83,14 +83,14 @@ export function validateSessionToken(token) {
     console.log("valid session, returning session and user, ", session, user);
     if (Date.now() >= session.expiresAt.getTime()) {
         console.log("session expired, deleting session and returning null");
-        execute("DELETE FROM session WHERE id = ?", [session.id]);
+        execute("DELETE FROM session WHERE id = $1", [session.id]);
         return { session: null, user: null };
     }
     if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
         console.log("session expires in less than 15 days, updating session");
         session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
         execute(
-            "UPDATE session SET expires_at = ? WHERE id = ?",
+            "UPDATE session SET expires_at = $1 WHERE id = $2",
             [Math.floor(session.expiresAt.getTime() / 1000),
             session.id]
         );
@@ -99,6 +99,6 @@ export function validateSessionToken(token) {
 }
 
 export function invalidateSession(sessionId) {
-    execute("DELETE FROM session WHERE id = ?", [sessionId]);
+    execute("DELETE FROM session WHERE id = $1", [sessionId]);
 }
 
