@@ -16,6 +16,8 @@
 
 	let error = $state(false);
 	let message = $state("unknown error");
+	import { HOST_IP } from "$env/static/private";
+
 
 	let socket;
 
@@ -35,7 +37,7 @@
 	});
 
 	function connectWebSocket() {
-		socket = new WebSocket(`ws://localhost:3001/ws-genfeed?user_id=${data.user_id}&session_id=${data.session_id}`);
+		socket = new WebSocket(`ws://${HOST_IP}/ws-genfeed?user_id=${data.user_id}&session_id=${data.session_id}`);
 
 		socket.onopen = () => {
 			console.log("WebSocket connection established");
