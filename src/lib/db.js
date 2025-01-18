@@ -15,6 +15,7 @@ export async function fetch(query, params = []) {
 }
 
 export async function fetchOne(query, params = []) {
-    return await fetch(query, params)[0] || null;
+    let data = await fetch(query, params);
+    return data[0];
 }
 

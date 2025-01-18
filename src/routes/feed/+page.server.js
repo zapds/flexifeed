@@ -14,7 +14,7 @@ export const load = async (event) => {
     const urls = event.url.searchParams.get('urls');
     let response;
     try {
-        response = await fetch(`http://${HOST_IP}/summarize?user_id=${userId}&session_id=${sessionId}&urls=${urls}`, {
+        response = await fetch(`http://152.53.55.83/summarize?user_id=${userId}&session_id=${sessionId}&urls=${urls}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

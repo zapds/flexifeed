@@ -19,17 +19,20 @@ export const actions = {
             }
         }
 
-        const existing = fetchOne("SELECT * FROM user_settings WHERE user_id = $1", [locals.user.id]);
+        const existing = await fetchOne("SELECT * FROM user_settings WHERE user_id = $1", [locals.user.id]);
+        console.log("existing", existing);
         if (existing) {
             await execute(
                 "UPDATE user_settings SET country = $1, topics = $2 WHERE user_id = $3",
                 [country, JSON.stringify(topicsArray), locals.user.id]
             );
+            console.log("updated to ", JSON.stringify(topicsArray));
         } else {
             await execute(
                 "INSERT INTO user_settings (user_id, country, topics) VALUES ($1, $2, $3)",
                 [locals.user.id, country, JSON.stringify(topicsArray)]
             );
+            console.log("inserted ", JSON.stringify(topicsArray));
         }
 
         return {success: true, country, topics};

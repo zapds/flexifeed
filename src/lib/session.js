@@ -56,11 +56,11 @@ export async function validateSessionToken(token) {
         session.id AS id, 
         session.user_id, 
         session.expires_at, 
-        user.id AS user_id, 
-        user.name,
-        user.picture
+        "user".id AS user_id, 
+        "user".name,
+        "user".picture
      FROM session 
-     INNER JOIN user ON user.id = session.user_id 
+     INNER JOIN "user" ON "user".id = session.user_id 
      WHERE session.id = $1`,
         [sessionId]
     );
