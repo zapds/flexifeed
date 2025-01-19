@@ -8,7 +8,7 @@ export const load = async (event) => {
 
     const userId = event.locals.user.id;
     const sessionId = event.locals.session.id;
-    const settings = fetchOne("SELECT * FROM user_settings WHERE user_id = $1", [event.locals.user.id]);
+    const settings = await fetchOne("SELECT * FROM user_settings WHERE user_id = $1", [event.locals.user.id]);
     // let response;
     // try {
     //     response = await fetch(`http://localhost:3001/genfeed?user_id=${userId}&session_id=${sessionId}`, {

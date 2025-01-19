@@ -4,6 +4,7 @@
 	import { Skeleton } from "$lib/components/ui/skeleton/index.js";
 	import { toast } from "svelte-sonner";
 	import { CheckCircle } from "lucide-svelte";
+	import Markdown from 'svelte-exmarkdown';
 
 	let { data } = $props();
 
@@ -26,5 +27,10 @@
 	<Button href="/">Return home</Button>
 </div>
 {:else}
-{data.message}
+<div class="flex flex-col max-w-[650px] mx-auto my-8 gap-4">
+    <h1 class="text-4xl font-semibold pt-16">Your Feed</h1>
+	<span class="text-xl leading-relaxed">
+		<Markdown md={data.message} />
+	</span>
+</div>
 {/if}

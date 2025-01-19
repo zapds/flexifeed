@@ -3,19 +3,21 @@
 	import * as Card from "$lib/components/ui/card/index.js";
 	import { Skeleton } from "$lib/components/ui/skeleton/index.js";
 	import { toast } from "svelte-sonner";
-	import { CheckCircle } from "lucide-svelte";
+	import { CheckCircle, Loader } from "lucide-svelte";
 
 	let { data } = $props();
 
 	import { onMount, onDestroy } from 'svelte';
 	import { writable } from 'svelte/store';
     import { fly } from "svelte/transition";
+    import { goto } from "$app/navigation";
 
 
 	let items = writable([]);
 
 	let error = $state(false);
 	let message = $state("unknown error");
+    let loading = $state(false);
 
 
 	let socket;
@@ -36,7 +38,7 @@
 	});
 
 	function connectWebSocket() {
-		socket = new WebSocket(`ws://152.53.55.83/ws-genfeed?user_id=${data.user_id}&session_id=${data.session_id}`);
+		socket = new WebSocket(`ws://5.8.35.170:3001/ws-genfeed?user_id=${data.user_id}&session_id=${data.session_id}`);
 
 		socket.onopen = () => {
 			console.log("WebSocket connection established");
@@ -84,6 +86,12 @@
 			message = "WebSocket not connected";
 		}
 	}
+
+	function handleSummarize(event) {
+		loading = true;
+		// redirect to feed page
+		goto(`/feed?urls=${encodeURIComponent(feedUrls.join(','))}`);
+	} 
 
 
 	onDestroy(() => {
@@ -246,7 +254,14 @@
 	<h3 class="font-bold relative z-10">
 		Done Selecting? Summarize {addedindices.length} article{addedindices.length > 1 ? 's' : ''}
 	</h3>
-	<Button data-sveltekit-preload-data="tap" href={`/feed?urls=${encodeURIComponent(feedUrls.join(','))}`} disabled={addedindices.length == 0} class="relative z-10">Summarize</Button>
+	<Button data-sveltekit-preload-data="tap" onclick={handleSummarize} disabled={addedindices.length == 0 || loading === true} class="relative z-10">
+		{#if loading}
+			<Loader class="w-6 h-6 animate-spin mx-2" />
+			Summarizing...
+		{:else}
+		Summarize
+		{/if}
+	</Button>
 	</div>
 {/if}
 

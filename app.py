@@ -8,6 +8,7 @@ from playwright.async_api import async_playwright
 import json
 from aiohttp import WSMsgType, web
 import asyncio
+import asyncpg
 
 load_dotenv()
 
@@ -99,28 +100,24 @@ async def genfeed(request):
     if not user_id or not session_id:
         return web.json_response({"error": "Missing user_id or session_id"}, status=400)
 
-    async with aiosqlite.connect("database.db") as conn:
-        async with conn.execute(
-            "SELECT * FROM session WHERE user_id = ? AND id = ?", (user_id, session_id)
-        ) as cursor:
-            session = await cursor.fetchone()
+    conn = await asyncpg.connect(os.environ["DATABASE_URL"])
+    session = await conn.fetchone(
+        "SELECT * FROM session WHERE user_id = $1 AND id = $2", user_id, session_id)
 
-        if not session:
-            return web.json_response(
-                {"error": "Invalid user_id or session_id"}, status=403
-            )
+    if not session:
+        return web.json_response(
+            {"error": "Invalid user_id or session_id"}, status=403
+        )
 
-        async with conn.execute(
-            "SELECT * FROM user_settings WHERE user_id = ?", (user_id,)
-        ) as cursor:
-            user_settings = await cursor.fetchone()
+    user_settings = await conn.fetchrow(
+        "SELECT * FROM user_settings WHERE user_id = ?", user_id)
 
-        if not user_settings:
-            country = "India"
-            topics = ["world", "nation", "technology", "sports", "science"]
-        else:
-            country = user_settings[1]
-            topics = json.loads(user_settings[2])
+    if not user_settings:
+        country = "India"
+        topics = ["world", "nation", "technology", "sports", "science"]
+    else:
+        country = user_settings[1]
+        topics = json.loads(user_settings[2])
 
     if not topics:
         topics = ["world", "nation", "technology", "sports", "science"]
