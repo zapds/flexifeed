@@ -89,7 +89,7 @@ async def get_summary(urls):
         return output
 
 
-async def hello_world():
+async def hello_world(request):
     return "Hello, world!"
 
 async def genfeed(request):
