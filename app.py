@@ -2,7 +2,6 @@ import os
 import random
 import openai
 from dotenv import load_dotenv
-import aiosqlite
 from gnewsclient import gnewsclient
 from playwright.async_api import async_playwright
 import json
@@ -54,7 +53,7 @@ async def get_news(language, location, topic, max_results):
 
 async def get_summary(urls):
     async with async_playwright() as p:
-        browser = await p.firefox.launch(headless=False)
+        browser = await p.firefox.launch(headless=True)
         async def fetch_article(url):
             print("fetching article: ", url)
             page = await browser.new_page()

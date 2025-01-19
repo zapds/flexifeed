@@ -2,3 +2,5 @@ flask
 openai
 requests
 python-dotenv
+asyncpg
+playwright
