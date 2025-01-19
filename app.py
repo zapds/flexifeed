@@ -328,4 +328,4 @@ app.router.add_get("/ws-genfeed", ws_genfeed)
 
 
 if __name__ == '__main__':
-    web.run_app(app, port=3001)
+    web.run_app(app, port=3000)
