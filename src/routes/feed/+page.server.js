@@ -14,7 +14,9 @@ export const load = async (event) => {
     const urls = event.url.searchParams.get('urls');
     let response;
     try {
-        response = await fetch(`https://api.flexifeed.zapdos.me/summarize?user_id=${userId}&session_id=${sessionId}&urls=${urls}`, {
+        const localRun = true;
+        const domain = localRun ? `http://localhost:3000` : 'https://api.flexifeed.zapdos.me';
+        response = await fetch(`${domain}/summarize?user_id=${userId}&session_id=${sessionId}&urls=${urls}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -23,7 +25,7 @@ export const load = async (event) => {
     } catch (error) {
         return {
                 user: event.locals.user,
-                message: 'Server down',
+                message: `Server down (${response.status}): ${error}`,
                 error: true
             };
     };
@@ -35,7 +37,7 @@ export const load = async (event) => {
             const errorData = await response.json();
             return {
                 user: event.locals.user,
-                message: errorData.message ?? 'Feed server failed',
+                message: errorData.message ?? `Feed server failed (${response.status})`,
                 error: true
             };
         } catch (e) {

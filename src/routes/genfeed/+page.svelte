@@ -38,7 +38,9 @@
 	});
 
 	function connectWebSocket() {
-		socket = new WebSocket(`wss://api.flexifeed.zapdos.me/ws-genfeed?user_id=${data.user_id}&session_id=${data.session_id}`);
+		const runningLocal = true;
+		const domain = runningLocal ? "ws://localhost:3000" : "wss://api.flexifeed.zapdos.me";
+		socket = new WebSocket(`${domain}/ws-genfeed?user_id=${data.user_id}&session_id=${data.session_id}` );
 
 		socket.onopen = () => {
 			console.log("WebSocket connection established");
